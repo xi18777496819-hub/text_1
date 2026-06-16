@@ -18,8 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "light_mix.h"
-#include "pwm.h"
+#include "gpio.h" /* 通用 GPIO 初始化 */
+#include "tim_pwm.h" /* TIM PWM 驱动 */
+#include "light_app.h" /* 业务逻辑层 */
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -87,10 +88,11 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  /* 如果项目提供 TIM3 的初始化函数，请在此调用（例如 MX_TIM3_Init()） */
-  /* MX_TIM3_Init(); */
-  PWM_Init();
+  MX_GPIO_Init(); /* CubeMX 生成的 GPIO 初始化 */
+  APP_GPIO_Init(); /* 业务额外 GPIO 初始化（如需） */
+
+  /* 初始化业务层（含 PWM 启动与混光模块） */
+  LightApp_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -99,11 +101,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    PWM_Output_t pwm = Light_GetPWM();
-
-    PWM_SetValue(pwm.ch1, pwm.ch2, pwm.ch3, pwm.ch4);
-
-    HAL_Delay(50);
+    /* 主循环只调用业务更新函数，所有逻辑在模块内实现 */
+    LightApp_Update(); /* 更新混光并下发 PWM */
+    HAL_Delay(50); /* 50 ms 周期更新，保证平滑 */
   }
   /* USER CODE END 3 */
 }
