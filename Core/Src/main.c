@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "light_mix.h"
+#include "pwm.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -86,6 +88,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  /* 如果项目提供 TIM3 的初始化函数，请在此调用（例如 MX_TIM3_Init()） */
+  /* MX_TIM3_Init(); */
+  PWM_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -94,12 +99,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+    PWM_Output_t pwm = Light_GetPWM();
 
-    /* USER CODE BEGIN 3 */
-    /* Toggle the LED pin and wait 500 ms */
-    HAL_GPIO_TogglePin(PWM_GPIO_Port, PWM_Pin);
-    HAL_Delay(500);
+    PWM_SetValue(pwm.ch1, pwm.ch2, pwm.ch3, pwm.ch4);
+
+    HAL_Delay(50);
   }
   /* USER CODE END 3 */
 }
